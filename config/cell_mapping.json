@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "inputs": {
+    "flat": [
+      {"key": "total_revenue",   "sheet": "Model", "cell": "B3"},
+      {"key": "total_expenses",  "sheet": "Model", "cell": "B4"},
+      {"key": "headcount",       "sheet": "Model", "cell": "B5"},
+      {"key": "growth_rate_pct", "sheet": "Model", "cell": "B6"}
+    ],
+    "ranges": [
+      {
+        "key": "monthly_revenue",
+        "sheet": "Model",
+        "start_cell": "C3",
+        "direction": "horizontal"
+      }
+    ]
+  },
+  "outputs": {
+    "flat": [
+      {"key": "net_income",     "sheet": "Model", "cell": "B10"},
+      {"key": "profit_margin",  "sheet": "Model", "cell": "B11"},
+      {"key": "revenue_per_hd", "sheet": "Model", "cell": "B12"}
+    ]
+  }
+}

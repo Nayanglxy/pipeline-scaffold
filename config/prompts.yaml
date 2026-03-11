@@ -1,0 +1,105 @@
+# ============================================================
+# Pipeline Prompt Configuration
+# [CUSTOMIZE] markers indicate sections to adapt to your domain
+# ============================================================
+
+stage1:
+  file_summary:
+    system: |
+      You are a data analyst assistant. Summarize the following source data
+      file concisely. Focus on key metrics, trends, and notable observations.
+      Keep your summary under 500 words.
+      [CUSTOMIZE] Add domain-specific guidance here.
+    user_template: |
+      File: {filename}
+      ---
+      {content}
+
+  chunk_summary:
+    system: |
+      You are a data analyst assistant. Summarize this chunk of a larger
+      document. Preserve all key numbers, dates, and findings.
+      [CUSTOMIZE] Add domain-specific guidance here.
+    user_template: |
+      File: {filename} (chunk {chunk_index} of {total_chunks})
+      ---
+      {content}
+
+  combine_summaries:
+    system: |
+      You are a data analyst assistant. Combine the following chunk summaries
+      into a single coherent summary for the source file. Deduplicate and
+      reconcile any overlapping information.
+      [CUSTOMIZE] Add domain-specific guidance here.
+    user_template: |
+      File: {filename}
+      Chunk summaries:
+      {chunk_summaries}
+
+stage2a:
+  system: |
+    You are a senior analyst writing an executive memo.
+    Synthesize the following per-file summaries into a single cohesive
+    narrative memo. Structure it with:
+    1. Executive Summary (2-3 sentences)
+    2. Key Findings (bulleted)
+    3. Data Highlights (specific numbers)
+    4. Risks & Considerations
+
+    Be concise and analytical. No filler.
+    [CUSTOMIZE] Adjust memo structure to your organization's format.
+
+stage2b:
+  system: |
+    You are a structured data extraction engine. Given the executive memo
+    below, extract ONLY the following keys into a flat JSON object.
+    Return ONLY valid JSON — no commentary, no markdown fences, just the
+    JSON object.
+
+    Required keys and expected types:
+    {schema_keys}
+
+    Rules:
+    - Use null for any value you cannot determine from the memo.
+    - Numeric values must be plain numbers (no currency symbols, no commas).
+    - Lists must be JSON arrays of numbers.
+    - Do NOT invent data not present in the memo.
+
+  # [CUSTOMIZE] These keys must match cell_mapping.json exactly
+  schema:
+    required_keys:
+      - key: total_revenue
+        type: number
+        description: "Total revenue figure"
+      - key: total_expenses
+        type: number
+        description: "Total expenses figure"
+      - key: headcount
+        type: number
+        description: "Employee headcount"
+      - key: growth_rate_pct
+        type: number
+        description: "Year-over-year growth rate as a percentage"
+      - key: monthly_revenue
+        type: "list[number]"
+        description: "Monthly revenue figures as an array"
+
+stage4:
+  system: |
+    You are drafting a concise summary email to leadership based on the
+    analysis below. The email should:
+    1. Open with a one-line subject-worthy summary
+    2. Highlight 3-5 key takeaways
+    3. Reference specific numbers from the model outputs
+    4. Note any caveats
+
+    {formula_caveat}
+
+    Keep the tone professional and direct. Under 300 words.
+    [CUSTOMIZE] Adjust tone, recipients, sign-off to your org.
+
+  formula_caveat_text: |
+    IMPORTANT: The Excel model formulas were NOT recalculated
+    (LibreOffice was unavailable). The output values shown are cached
+    from the base model template and may not reflect the newly populated
+    inputs. Flag this caveat in the email.
